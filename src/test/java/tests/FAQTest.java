@@ -1,25 +1,18 @@
 package tests;
-import org.junit.After;
-import org.junit.Before;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import pages.HomePage;
-
-import java.util.concurrent.TimeUnit;
-
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import static org.junit.Assert.assertEquals;
+
+import java.time.Duration;
 
 // Класс FAQTest предназначен для тестирования раздела FAQ на главной странице
 @RunWith(Parameterized.class)
-public class FAQTest {
-
-    private ChromeOptions options;
-    private WebDriver driver;
-    private HomePage homePage;
+public class FAQTest extends BaseTest {
 
     // Параметры для теста: вопрос и ожидаемый ответ
     private final String question;
@@ -46,18 +39,6 @@ public class FAQTest {
         };
     }
 
-    // Метод, выполняемый перед каждым тестом, для настройки браузера и инициализации объектов страницы
-    @Before
-    public void setup() {
-        options = new ChromeOptions().addArguments("--disable-cookies");
-        driver = new ChromeDriver(options);
-        driver.manage().window().maximize();
-        driver.get(HomePage.HOME_PAGE_URL);
-        homePage = new HomePage(driver);
-        // Установка неявного ожидания в 5 секунд
-        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-    }
-
     // Тестовый метод для проверки соответствия ответа вопросу
     @Test
     public void validateFaqAnswer() {
@@ -66,21 +47,10 @@ public class FAQTest {
         homePage.scrollToElement(questionElement);
         // Клик по вопросу для раскрытия ответа
         questionElement.click();
-        // Задержка, чтобы убедиться, что ответ успел появиться
-        try {
-            Thread.sleep(1000); // Задержка в 1 секунду
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         // Получение раскрытого ответа
-        WebElement answerElement = homePage.getExpandedFaqAnswer();
+        WebElement answerElement = new WebDriverWait(driver, Duration.ofSeconds(3))
+                .until(ExpectedConditions.visibilityOf(homePage.getExpandedFaqAnswer())); // Используем явное ожидание
         // Проверка соответствия текста ответа ожидаемому
         assertEquals("Ответ не сходится", expectedAnswer, answerElement.getText());
-    }
-
-    // Метод, выполняемый после каждого теста, для закрытия браузера
-    @After
-    public void teardown() {
-        driver.quit();
     }
 }

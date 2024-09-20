@@ -5,6 +5,10 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 // Класс HomePage представляет главную страницу сайта
 public class HomePage {
@@ -25,12 +29,14 @@ public class HomePage {
     // Метод для получения элемента вопроса FAQ по тексту
     public WebElement getFaqQuestion(String questionText) {
         By questionLocator = By.xpath(String.format(".//div[@aria-expanded and text()='%s']", questionText));
-        return driver.findElement(questionLocator);
+        return new WebDriverWait(driver, Duration.ofSeconds(3))
+                .until(ExpectedConditions.elementToBeClickable(questionLocator)); // Используем явное ожидание
     }
 
     // Метод для получения раскрытого ответа FAQ
     public WebElement getExpandedFaqAnswer() {
-        return driver.findElement(lowerfaq);
+        return new WebDriverWait(driver, Duration.ofSeconds(3))
+                .until(ExpectedConditions.visibilityOfElementLocated(lowerfaq)); // Используем явное ожидание
     }
 
     public WebElement getTopOrderButton() {

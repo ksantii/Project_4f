@@ -1,21 +1,22 @@
 package pages;
 
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.util.Locale;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 // Класс UserOrderPage представляет страницу оформления заказа
 public class UserOrderPage {
 
     private WebDriver driver;
-
 
     // Локаторы для элементов формы заказа
     private static By nameField = By.xpath(".//input[@placeholder='* Имя']");
@@ -56,11 +57,11 @@ public class UserOrderPage {
 
     // Метод для получения элемента метро по названию станции
     public WebElement getMetroStation(String stationName) {
-        return driver
-                .findElements(metroList)
+        return new WebDriverWait(driver, Duration.ofSeconds(3))
+                .until(ExpectedConditions.visibilityOfAllElementsLocatedBy(metroList))
                 .stream()
                 .filter(element -> element.getText().equalsIgnoreCase(stationName))
-                .findFirst().orElse(null);
+                .findFirst().orElse(null); // Используем явное ожидание
     }
 
     public WebElement getPhoneField() {
@@ -89,8 +90,10 @@ public class UserOrderPage {
         String month = targetDate.getMonth().getDisplayName(TextStyle.FULL_STANDALONE, new Locale("ru"));
         int day = targetDate.getDayOfMonth();
 
-        WebElement currentMonth = driver.findElement(By.xpath(".//div[@class='react-datepicker__current-month']"));
-        WebElement nextMonthBtn = driver.findElement(By.xpath(".//button[@aria-label='Next Month']"));
+        WebElement currentMonth = new WebDriverWait(driver, Duration.ofSeconds(3))
+                .until(ExpectedConditions.visibilityOfElementLocated(By.xpath(".//div[@class='react-datepicker__current-month']"))); // Используем явное ожидание
+        WebElement nextMonthBtn = new WebDriverWait(driver, Duration.ofSeconds(3))
+                .until(ExpectedConditions.elementToBeClickable(By.xpath(".//button[@aria-label='Next Month']"))); // Используем явное ожидание
 
         // Переход к нужному месяцу
         while (!currentMonth.getText().equals(String.format("%s %d", month, year))) {

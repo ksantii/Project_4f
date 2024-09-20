@@ -1,27 +1,21 @@
 package tests;
 
-import org.junit.After;
+import pages.UserOrderPage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import pages.HomePage;
-import pages.UserOrderPage;
-
-import java.util.concurrent.TimeUnit;
-
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import static org.junit.Assert.assertTrue;
+
+import java.time.Duration;
+
 
 // Класс OrderTest предназначен для тестирования позитивных сценариев заказа
 @RunWith(Parameterized.class)
-public class OrderTest {
+public class OrderTest extends BaseTest {
 
-    private ChromeOptions options;
-    private WebDriver driver;
-    private HomePage homePage;
     private UserOrderPage orderPage;
 
     // Параметры для теста
@@ -64,65 +58,44 @@ public class OrderTest {
     // Метод, выполняемый перед каждым тестом, для настройки браузера и инициализации объектов страниц
     @Before
     public void setup() {
-        options = new ChromeOptions().addArguments("--disable-cookies");
-        driver = new ChromeDriver(options);
-        driver.manage().window().maximize();
-        driver.get(HomePage.HOME_PAGE_URL);
-        homePage = new HomePage(driver);
+        super.setup();
         orderPage = new UserOrderPage(driver);
-        driver.manage().timeouts().implicitlyWait(deliveryDays, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
     }
-    // Метод для добавления задержки
-    private void delay(long milliseconds) {
-        try {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+
     // Тестовый метод для выполнения заказа через верхнюю кнопку заказа на главной странице
     @Test
     public void orderViaTopButton() {
         homePage.clickTopOrder();
-        delay(1000); // Задержка в 1 секунду
         orderPage.enterName(name);
         orderPage.enterSurname(surname);
         orderPage.enterAddress(address);
         orderPage.chooseMetroStation(metroStation);
         orderPage.enterPhoneNumber(phoneNumber);
         orderPage.clickNext();
-        delay(1000); // Задержка в 1 секунду
         orderPage.selectDeliveryDate();
         orderPage.selectRentPeriod(rentalPeriodIndex);
         orderPage.clickOrder();
         orderPage.clickConfirmYes();
-        // Проверка, что заказ подтвержден
-        assertTrue(orderPage.getOrderConfirmedHeader().isDisplayed());
+        assertTrue(new WebDriverWait(driver, Duration.ofSeconds(3))
+                .until(ExpectedConditions.visibilityOf(orderPage.getOrderConfirmedHeader())).isDisplayed()); // Используем явное ожидание
     }
 
     // Тестовый метод для выполнения заказа через нижнюю кнопку заказа на главной странице
     @Test
     public void orderViaBottomButton() {
         homePage.clickBottomOrder();
-        delay(1000); // Задержка в 1 секунду
         orderPage.enterName(name);
         orderPage.enterSurname(surname);
         orderPage.enterAddress(address);
         orderPage.chooseMetroStation(metroStation);
         orderPage.enterPhoneNumber(phoneNumber);
         orderPage.clickNext();
-        delay(1000); // Задержка в 1 секунду
         orderPage.selectDeliveryDate();
         orderPage.selectRentPeriod(rentalPeriodIndex);
         orderPage.clickOrder();
         orderPage.clickConfirmYes();
-        // Проверка, что заказ подтвержден
-        assertTrue(orderPage.getOrderConfirmedHeader().isDisplayed());
-    }
-
-    // Метод, выполняемый после каждого теста, для закрытия браузера
-    @After
-    public void teardown() {
-        driver.quit();
+        assertTrue(new WebDriverWait(driver, Duration.ofSeconds(3))
+                .until(ExpectedConditions.visibilityOf(orderPage.getOrderConfirmedHeader())).isDisplayed()); // Используем явное ожидание
     }
 }
